@@ -14,8 +14,8 @@ class Post extends Model
         'update_at'
     ];
 
-    public function posts()
+    public function tags()
     {
-        return $this->belongsTo('App\User');
+        return $this->belongsToMany('App\Tag');
     }
 }

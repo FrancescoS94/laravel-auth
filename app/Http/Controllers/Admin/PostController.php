@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Post;
+use App\Tag;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -16,7 +17,8 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        $posts = Post::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
+        return view('admin.posts.index', compact('posts'));
     }
 
     /**
@@ -26,7 +28,8 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('admin.posts.create');
+        $tags = Tag::all();
+        return view('admin.posts.create', compact('tags'));
     }
 
     /**
@@ -38,16 +41,25 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
+
         $request->validate([
             'title' => 'required|min:5|max:100',
             'body' => 'required|min:5|max:500'
         ]);
+
         $data['user_id'] = Auth::id();
         $data['slug']=Str::slug($data['title'],'-');
+
         $newPost = new Post();
         $newPost->fill($data);
+
         $saved = $newPost->save();
-        dd($saved);
+
+        $newPost->tags()->attach($data['tags']);
+
+        if($saved){
+            return redirect()->route('posts.index');
+        }
     }
 
     /**
@@ -69,7 +81,9 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        $tags = Tag::all();
+
+        return view('admin.posts.edit', compact('post', 'tags'));
     }
 
     /**
@@ -81,7 +95,13 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        $data = $request->all();   // array di dati.
+        $data['slug'] = Str::slug($data['title'], '-');
+
+        $post->tags()->sync($data['tags']);
+
+        $post->update($data);
+        return redirect()->route('posts.index')->with('status', "Hai modificato correttamente il post dell' id " . $post->id);
     }
 
     /**
@@ -92,6 +112,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return redirect()->route('posts.index')->with('status', 'delete'. "Hai cancellato correttamente il post dell' id " . $post->id);
     }
 }
