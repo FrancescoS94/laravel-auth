@@ -11,11 +11,17 @@ class Post extends Model
         'title',
         'body',
         'slug',
-        'update_at'
+        'img',
+        'updated_at'
     ];
 
     public function tags()
     {
         return $this->belongsToMany('App\Tag');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('App\User');
     }
 }
