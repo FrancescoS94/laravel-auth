@@ -7,21 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class Post extends Model
 {
     protected $fillable = [
-        'user_id',
-        'title',
-        'body',
-        'slug',
-        'img',
-        'updated_at'
+        'user_id', 'title', 'body', 'slug', 'img', 'updated_at'
     ];
-
-    public function tags()
-    {
-        return $this->belongsToMany('App\Tag');
-    }
 
     public function user()
     {
         return $this->belongsTo('App\User');
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany('App\Tag');
     }
 }

@@ -20,7 +20,12 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
+        // dd(Auth::user()->role->role);
+        if (Auth::user()->role->role == 'admin') {  // Se l'utente ha il ruolo admin può vedere tutto, altrimenti solo i suoi post.
+            $posts = Post::paginate(5);  // paginate non funziona con all(), usiamo solo paginate.
+        } elseif (Auth::user()->role->role == 'writer') {
+            $posts = Post::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
+        }
         return view('admin.posts.index', compact('posts'));
     }
 
